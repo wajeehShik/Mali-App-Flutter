@@ -4,3 +4,7 @@
 
 
 dart run build_runner build --delete-conflicting-outputs
+
+
+صيغة التوكن (هذا هو العقد الذي سيلتزم به Laravel لاحقًا):
+base64url(payloadJson) . base64url(signature) 

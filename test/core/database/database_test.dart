@@ -253,7 +253,7 @@ void main() {
     test('أُنشئت الفهارس الثمانية', () async {
       final rows = await db
           .customSelect(
-            "SELECT name FROM sqlite_master "
+            'SELECT name FROM sqlite_master ' 
             "WHERE type = 'index' AND name LIKE 'idx_%'",
           )
           .get();

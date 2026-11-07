@@ -1,0 +1,6 @@
+
+من رقم 10 بديت من مشروع ثاني
+
+
+
+dart run build_runner build --delete-conflicting-outputs

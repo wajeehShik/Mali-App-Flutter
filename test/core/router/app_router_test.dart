@@ -8,6 +8,8 @@ import 'package:mali/features/activation/domain/activation_state.dart';
 import 'package:mali/features/activation/domain/activation_token.dart';
 import 'package:mali/features/activation/presentation/activation_providers.dart';
 import 'package:mali/features/activation/presentation/activation_screen.dart';
+import 'package:mali/features/reports/domain/dashboard_summary.dart';
+import 'package:mali/features/reports/presentation/dashboard_providers.dart';
 
 final ActivationToken _testToken = ActivationToken(
   userId: 'user-1',
@@ -58,10 +60,16 @@ Future<_RouterSetup> _pumpRouter(
         () => _TestActivationController(activationState),
       ),
       deviceIdProvider.overrideWith((ref) async => 'test-device-id'),
+
+      // اختبار الراوتر لا يحتاج قاعدة البيانات ولا بيانات لوحة التحكم.
+      dashboardSummaryProvider.overrideWith(
+        (ref) => Stream.value(
+          DashboardSummary.fromTransactions(const []),
+        ),
+      ),
     ],
   );
 
-  // ننتظر تحميل الحالة قبل إنشاء الراوتر ليكون اختبار redirect حتميًا.
   await container.read(activationControllerProvider.future);
 
   final refresh = _TestRouterRefresh();
@@ -77,7 +85,7 @@ Future<_RouterSetup> _pumpRouter(
       child: MaterialApp.router(routerConfig: router),
     ),
   );
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 500));
 
   return _RouterSetup(
     container: container,
@@ -109,7 +117,7 @@ void main() {
     addTearDown(setup.dispose);
 
     setup.router.go(AppRoutes.activation);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(
       setup.router.routeInformationProvider.value.uri.path,
@@ -126,7 +134,7 @@ void main() {
     addTearDown(setup.dispose);
 
     setup.router.go(AppRoutes.backup);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(
       setup.router.routeInformationProvider.value.uri.path,
@@ -134,7 +142,7 @@ void main() {
     );
 
     setup.router.go(AppRoutes.sales);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(
       setup.router.routeInformationProvider.value.uri.path,

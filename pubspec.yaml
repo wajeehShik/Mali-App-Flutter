@@ -8,8 +8,11 @@ environment:
 
 dependencies:
   cryptography: ^2.9.0
+  csv: ^8.0.0
   device_info_plus: ^13.3.0
   drift: ^2.35.3
+  excel: ^4.0.6
+  file_picker: ^13.3.3
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -20,6 +23,7 @@ dependencies:
   intl: any
   path: ^1.9.1
   path_provider: ^2.1.6
+  share_plus: ^13.3.1
   sqlite3_flutter_libs: ^0.6.0+eol
   uuid: ^4.6.0
 

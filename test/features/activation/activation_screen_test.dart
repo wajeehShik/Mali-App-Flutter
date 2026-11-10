@@ -11,12 +11,13 @@ class _TestActivationController extends ActivationController {
 }
 
 void main() {
-  final listScrollable = find.descendant(
-    of: find.byType(ListView),
-    matching: find.byType(Scrollable),
-  );
-
   Future<void> pumpActivationScreen(WidgetTester tester) async {
+    // مساحة كافية لعرض عناصر الشاشة دون تمرير داخل الاختبار.
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -42,27 +43,13 @@ void main() {
     expect(find.text('تفعيل مالي'), findsOneWidget);
     expect(find.text('test-device-id-1234'), findsOneWidget);
     expect(find.text('إرسال طلب التفعيل'), findsOneWidget);
-
-    final manualActivationButton = find.text('تفعيل الرمز');
-    await tester.scrollUntilVisible(
-      manualActivationButton,
-      300,
-      scrollable: listScrollable,
-    );
-
-    expect(manualActivationButton, findsOneWidget);
+    expect(find.text('تفعيل الرمز'), findsOneWidget);
   });
 
   testWidgets('يعرض خطأ الاسم عند إرسال النموذج فارغًا', (tester) async {
     await pumpActivationScreen(tester);
 
-    final submitButton = find.text('إرسال طلب التفعيل');
-    await tester.scrollUntilVisible(
-      submitButton,
-      300,
-      scrollable: listScrollable,
-    );
-    await tester.tap(submitButton);
+    await tester.tap(find.text('إرسال طلب التفعيل'));
     await tester.pumpAndSettle();
 
     expect(find.text('الاسم مطلوب.'), findsOneWidget);

@@ -3,17 +3,27 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/activation/domain/activation_state.dart';
 import '../../features/activation/presentation/activation_screen.dart';
+import '../../features/debts/presentation/debts_screen.dart';
+import '../../features/income_expenses/domain/income_expense.dart';
+import '../../features/income_expenses/presentation/income_expenses_screen.dart';
+import '../../features/inventory/presentation/inventory_screen.dart';
+import '../../features/purchases/presentation/purchases_screen.dart';
+import '../../features/backup/presentation/backup_screen.dart';
+
+import '../../features/reports/presentation/dashboard_screen.dart';
+import '../../features/reports/presentation/reports_screen.dart';
+import '../../features/sales/presentation/sales_screen.dart';
+import '../../features/transactions/presentation/transactions_screen.dart';
 import '../widgets/placeholder_screen.dart';
 import 'app_routes.dart';
 import 'app_shell.dart';
 
-/// مفتاح المتنقل الجذري: المسارات التي تُفتح فوق قشرة التنقل السفلي تستخدمه.
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
 
-/// المسارات التي تبقى متاحة للقراءة عند انتهاء التصريح.
-/// صفحات إنشاء العمليات أو تعديلها غير مدرجة هنا.
+/// المسارات المتاحة للقراءة بعد انتهاء التفعيل.
+/// المبيعات ونقطة البيع غير مسموحتين بعد انتهاء التفعيل.
 const Set<String> _expiredAllowedPaths = {
   AppRoutes.dashboard,
   AppRoutes.transactions,
@@ -23,15 +33,15 @@ const Set<String> _expiredAllowedPaths = {
   AppRoutes.products,
   AppRoutes.categories,
   AppRoutes.inventory,
+  AppRoutes.income,
+  AppRoutes.expenses,
+  AppRoutes.purchases,
+  AppRoutes.debts,
   AppRoutes.customers,
   AppRoutes.suppliers,
   AppRoutes.backup,
 };
 
-/// يبني راوتر التطبيق.
-///
-/// [readActivationState] يقرأ آخر حالة تفعيل.
-/// [refreshListenable] يُخبر GoRouter أن حالة التفعيل تغيّرت.
 GoRouter createAppRouter({
   required ActivationState? Function() readActivationState,
   required Listenable refreshListenable,
@@ -76,10 +86,7 @@ GoRouter createAppRouter({
               GoRoute(
                 path: AppRoutes.dashboard,
                 name: AppRouteNames.dashboard,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'الرئيسية',
-                  icon: Icons.dashboard_rounded,
-                ),
+                builder: (context, state) => const DashboardScreen(),
               ),
             ],
           ),
@@ -88,10 +95,7 @@ GoRouter createAppRouter({
               GoRoute(
                 path: AppRoutes.transactions,
                 name: AppRouteNames.transactions,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'المعاملات',
-                  icon: Icons.receipt_long_rounded,
-                ),
+                builder: (context, state) => const TransactionsScreen(),
               ),
             ],
           ),
@@ -100,10 +104,7 @@ GoRouter createAppRouter({
               GoRoute(
                 path: AppRoutes.pos,
                 name: AppRouteNames.pos,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'نقطة البيع',
-                  icon: Icons.point_of_sale_rounded,
-                ),
+                builder: (context, state) => const SalesScreen(),
               ),
             ],
           ),
@@ -112,10 +113,7 @@ GoRouter createAppRouter({
               GoRoute(
                 path: AppRoutes.reports,
                 name: AppRouteNames.reports,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'التقارير',
-                  icon: Icons.bar_chart_rounded,
-                ),
+                builder: (context, state) => const ReportsScreen(),
               ),
             ],
           ),
@@ -134,7 +132,6 @@ GoRouter createAppRouter({
         ],
       ),
 
-      // شاشة التفعيل الفعلية.
       GoRoute(
         path: AppRoutes.activation,
         name: AppRouteNames.activation,
@@ -142,7 +139,6 @@ GoRouter createAppRouter({
         builder: (context, state) => const ActivationScreen(),
       ),
 
-      // مسارات بشاشة كاملة فوق القشرة.
       _fullScreen(
         AppRoutes.accounts,
         AppRouteNames.accounts,
@@ -167,42 +163,48 @@ GoRouter createAppRouter({
         'التصنيفات',
         Icons.category_rounded,
       ),
-      _fullScreen(
-        AppRoutes.inventory,
-        AppRouteNames.inventory,
-        'المخزون',
-        Icons.warehouse_rounded,
+
+      GoRoute(
+        path: AppRoutes.inventory,
+        name: AppRouteNames.inventory,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const InventoryScreen(),
       ),
-      _fullScreen(
-        AppRoutes.sales,
-        AppRouteNames.sales,
-        'المبيعات',
-        Icons.sell_rounded,
+      GoRoute(
+        path: AppRoutes.sales,
+        name: AppRouteNames.sales,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SalesScreen(),
       ),
-      _fullScreen(
-        AppRoutes.purchases,
-        AppRouteNames.purchases,
-        'المشتريات',
-        Icons.shopping_cart_rounded,
+      GoRoute(
+        path: AppRoutes.purchases,
+        name: AppRouteNames.purchases,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PurchasesScreen(),
       ),
-      _fullScreen(
-        AppRoutes.income,
-        AppRouteNames.income,
-        'الإيرادات',
-        Icons.trending_up_rounded,
+      GoRoute(
+        path: AppRoutes.income,
+        name: AppRouteNames.income,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const IncomeExpensesScreen(
+          initialType: IncomeExpenseType.income,
+        ),
       ),
-      _fullScreen(
-        AppRoutes.expenses,
-        AppRouteNames.expenses,
-        'المصروفات',
-        Icons.trending_down_rounded,
+      GoRoute(
+        path: AppRoutes.expenses,
+        name: AppRouteNames.expenses,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const IncomeExpensesScreen(
+          initialType: IncomeExpenseType.expense,
+        ),
       ),
-      _fullScreen(
-        AppRoutes.debts,
-        AppRouteNames.debts,
-        'الديون',
-        Icons.handshake_rounded,
+      GoRoute(
+        path: AppRoutes.debts,
+        name: AppRouteNames.debts,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const DebtsScreen(),
       ),
+
       _fullScreen(
         AppRoutes.customers,
         AppRouteNames.customers,
@@ -215,12 +217,13 @@ GoRouter createAppRouter({
         'الموردون',
         Icons.local_shipping_rounded,
       ),
-      _fullScreen(
-        AppRoutes.backup,
-        AppRouteNames.backup,
-        'النسخ الاحتياطي',
-        Icons.backup_rounded,
-      ),
+    GoRoute(
+  path: AppRoutes.backup,
+  name: AppRouteNames.backup,
+  parentNavigatorKey: rootNavigatorKey,
+  builder: (context, state) => const BackupScreen(),
+),
+
       _fullScreen(
         AppRoutes.settings,
         AppRouteNames.settings,
@@ -231,12 +234,15 @@ GoRouter createAppRouter({
   );
 }
 
-/// مسار بشاشة كاملة يُفتح فوق القشرة (دون شريط التنقل السفلي).
+/// مسار كامل الشاشة يُفتح فوق القشرة، دون شريط التنقل السفلي.
 GoRoute _fullScreen(String path, String name, String title, IconData icon) {
   return GoRoute(
     path: path,
     name: name,
     parentNavigatorKey: rootNavigatorKey,
-    builder: (context, state) => PlaceholderScreen(title: title, icon: icon),
+    builder: (context, state) => PlaceholderScreen(
+      title: title,
+      icon: icon,
+    ),
   );
 }
